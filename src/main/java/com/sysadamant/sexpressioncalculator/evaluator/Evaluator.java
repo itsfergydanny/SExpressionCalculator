@@ -3,7 +3,6 @@ package com.sysadamant.sexpressioncalculator.evaluator;
 import com.sysadamant.sexpressioncalculator.functions.*;
 import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
