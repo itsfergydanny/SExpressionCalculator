@@ -3,6 +3,7 @@ package com.sysadamant.sexpressioncalculator.evaluator;
 import com.sysadamant.sexpressioncalculator.functions.*;
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -44,6 +45,11 @@ public class Evaluator {
     private String processFurthestFunction(String line) {
         if (!line.contains("(")) {
             String[] argz = line.split("\\s+");
+            if (argz.length == 1) {
+                try {
+                    return Integer.valueOf(argz[0]) + "";
+                } catch (NumberFormatException ignore) {}
+            }
             if (argz.length >= 3) {
                 Optional<Integer> result = switch (argz[0]) {
                     case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
@@ -59,10 +65,15 @@ public class Evaluator {
             return "Error: Invalid operation";
         }
 
+        int lastClose = line.length() - 1;
         for (int i = line.length() - 1; i >= 0; i--) {
             String c = line.charAt(i) + "";
+            if (c.equals(")")) {
+                lastClose = i;
+                continue;
+            }
             if (c.equals("(")) {
-                String substring = line.substring(i);
+                String substring = line.substring(i, lastClose + 1);
                 String[] argz = substring.replace("(", "").replace(")", "").split(" ");
                 Optional<Integer> result = switch (argz[0]) {
                     case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
@@ -76,6 +87,7 @@ public class Evaluator {
                     continue;
                 }
                 line = line.replace(substring, result.get() + "");
+                return processFurthestFunction(line);
             }
         }
 
