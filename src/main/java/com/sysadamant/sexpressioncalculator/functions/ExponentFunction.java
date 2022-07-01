@@ -8,7 +8,7 @@ import java.util.Optional;
 public class ExponentFunction implements Function {
     @Override
     public Optional<Integer> evaluate(String[] parts) {
-        if (parts.length != 3) {
+        if (parts.length < 3) {
             return Optional.empty();
         }
 
@@ -17,14 +17,18 @@ public class ExponentFunction implements Function {
         }
 
         try {
-            int firstNumber = Integer.parseInt(parts[1]);
-            int secondNumber = Integer.parseInt(parts[2]);
+            int sum = Integer.parseInt(parts[1]);
+            for (int i = 2; i < parts.length; i++) {
+                int num = Integer.parseInt(parts[i]);
 
-            double result = Math.pow(firstNumber, secondNumber);
-            if (result > Integer.MAX_VALUE) {
-                return Optional.empty();
+                double result = Math.pow(sum, num);
+                if (result > Integer.MAX_VALUE) {
+                    return Optional.empty();
+                }
+
+                sum = (int) result;
             }
-            return Optional.of((int) result);
+            return Optional.of(sum);
         } catch (NumberFormatException | ArithmeticException ignore) {
             return Optional.empty();
         }

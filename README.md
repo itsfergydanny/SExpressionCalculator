@@ -30,3 +30,4 @@ java -jar ./target/SExpressionCalculator-1.0-SNAPSHOT-shaded.jar "(add 12 12)"
 
 Extra credit:
 * Implemented a subtract and exponent function types since it was easy to extend my base code to cover these.
+* Made it so you can specify as many arguments to a function as you want, for example: "add 10 20 30 40 50"

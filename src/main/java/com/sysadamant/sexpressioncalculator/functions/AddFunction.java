@@ -8,7 +8,7 @@ import java.util.Optional;
 public class AddFunction implements Function {
     @Override
     public Optional<Integer> evaluate(String[] parts) {
-        if (parts.length != 3) {
+        if (parts.length < 3) {
             return Optional.empty();
         }
 
@@ -17,9 +17,12 @@ public class AddFunction implements Function {
         }
 
         try {
-            int firstNumber = Integer.parseInt(parts[1]);
-            int secondNumber = Integer.parseInt(parts[2]);
-            return Optional.of(Math.addExact(firstNumber, secondNumber));
+            int sum = Integer.parseInt(parts[1]);
+            for (int i = 2; i < parts.length; i++) {
+                int num = Integer.parseInt(parts[i]);
+                sum = Math.addExact(sum, num);
+            }
+            return Optional.of(sum);
         } catch (NumberFormatException | ArithmeticException ignore) {
             return Optional.empty();
         }

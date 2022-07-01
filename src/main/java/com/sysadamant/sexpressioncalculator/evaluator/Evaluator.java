@@ -44,7 +44,7 @@ public class Evaluator {
     private String processFurthestFunction(String line) {
         if (!line.contains("(")) {
             String[] argz = line.split("\\s+");
-            if (argz.length == 3) {
+            if (argz.length >= 3) {
                 Optional<Integer> result = switch (argz[0]) {
                     case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
                     case "add" -> FUNCTIONS.get("add").evaluate(argz);

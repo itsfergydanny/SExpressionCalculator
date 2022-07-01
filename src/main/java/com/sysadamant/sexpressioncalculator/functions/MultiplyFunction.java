@@ -8,19 +8,21 @@ import java.util.Optional;
 public class MultiplyFunction implements Function {
     @Override
     public Optional<Integer> evaluate(String[] parts) {
-        if (parts.length != 3) {
+        if (parts.length < 3) {
             return Optional.empty();
         }
 
         if (!parts[0].equals("multiply")) {
-            System.out.println("not multiply");
             return Optional.empty();
         }
 
         try {
-            int firstNumber = Integer.parseInt(parts[1]);
-            int secondNumber = Integer.parseInt(parts[2]);
-            return Optional.of(Math.multiplyExact(firstNumber, secondNumber));
+            int sum = Integer.parseInt(parts[1]);
+            for (int i = 2; i < parts.length; i++) {
+                int num = Integer.parseInt(parts[i]);
+                sum = Math.multiplyExact(sum, num);
+            }
+            return Optional.of(sum);
         } catch (NumberFormatException | ArithmeticException ignore) {
             return Optional.empty();
         }
