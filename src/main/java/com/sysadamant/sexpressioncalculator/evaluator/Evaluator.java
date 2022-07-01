@@ -8,20 +8,17 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Evaluator {
-    private String[] args;
-
     @Getter
     private final Map<String, Function> FUNCTIONS = new HashMap<>();
 
-    public Evaluator(String[] args) {
-        this.args = args;
+    public Evaluator() {
         FUNCTIONS.put("add", new AddFunction());
         FUNCTIONS.put("multiply", new MultiplyFunction());
         FUNCTIONS.put("subtract", new SubtractFunction());
         FUNCTIONS.put("exponent", new ExponentFunction());
     }
 
-    public String eval() {
+    public String eval(String[] args) {
         if (args.length < 1) {
             return "Error: No arguments passed. The minimum amount of arguments to pass is 1.";
         }
@@ -34,62 +31,62 @@ public class Evaluator {
                 int value = Integer.parseInt(args[0]);
                 return value + "";
             } catch (NumberFormatException ignore) {
-                return "Error: Invalid number specified. Number must be an Integer!";
+                return "Error: Invalid integer specified.";
             }
         }
 
-        return processFurthestFunction(line);
+        return processNestedExpression(line);
     }
 
-    private String processFurthestFunction(String line) {
+    private String processNestedExpression(String line) {
         if (!line.contains("(")) {
-            String[] argz = line.split("\\s+");
-            if (argz.length == 1) {
+            String[] args = line.split("\\s+");
+            if (args.length == 1) {
                 try {
-                    return Integer.valueOf(argz[0]) + "";
+                    return Integer.valueOf(args[0]) + "";
                 } catch (NumberFormatException ignore) {}
             }
-            if (argz.length >= 3) {
-                Optional<Integer> result = switch (argz[0]) {
-                    case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
-                    case "add" -> FUNCTIONS.get("add").evaluate(argz);
-                    case "subtract" -> FUNCTIONS.get("subtract").evaluate(argz);
-                    case "exponent" -> FUNCTIONS.get("exponent").evaluate(argz);
-                    default -> Optional.empty();
-                };
+            if (args.length >= 3) {
+                Optional<Integer> result = getCalculationResult(args);
                 if (result.isPresent()) {
                     return result.get() + "";
                 }
             }
-            return "Error: Invalid operation";
+            return "Error: Invalid expression. Please make sure each opening parenthesis is closed.";
         }
 
-        int lastClose = line.length() - 1;
+        int lastClosingParenthesis = line.length() - 1;
+
         for (int i = line.length() - 1; i >= 0; i--) {
             String c = line.charAt(i) + "";
+
             if (c.equals(")")) {
-                lastClose = i;
+                lastClosingParenthesis = i;
                 continue;
             }
+
             if (c.equals("(")) {
-                String substring = line.substring(i, lastClose + 1);
-                String[] argz = substring.replace("(", "").replace(")", "").split(" ");
-                Optional<Integer> result = switch (argz[0]) {
-                    case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
-                    case "add" -> FUNCTIONS.get("add").evaluate(argz);
-                    case "subtract" -> FUNCTIONS.get("subtract").evaluate(argz);
-                    case "exponent" -> FUNCTIONS.get("exponent").evaluate(argz);
-                    default -> Optional.empty();
-                };
+                String substring = line.substring(i, lastClosingParenthesis + 1);
+                String[] args = substring.replace("(", "").replace(")", "").split("\\s+");
+                Optional<Integer> result = getCalculationResult(args);
                 if (result.isEmpty()) {
-                    line = line.replace(substring, "");
-                    continue;
+                    return "Error: Invalid expression. Please make sure each opening parenthesis is closed.";
                 }
                 line = line.replace(substring, result.get() + "");
-                return processFurthestFunction(line);
+                return processNestedExpression(line);
             }
         }
 
-        return processFurthestFunction(line);
+        return processNestedExpression(line);
+    }
+
+    private Optional<Integer> getCalculationResult(String[] args) {
+        return switch (args[0]) {
+            case "multiply" -> FUNCTIONS.get("multiply").evaluate(args);
+            case "add" -> FUNCTIONS.get("add").evaluate(args);
+            case "subtract" -> FUNCTIONS.get("subtract").evaluate(args);
+            case "exponent" -> FUNCTIONS.get("exponent").evaluate(args);
+            default -> Optional.empty();
+        };
     }
 }
