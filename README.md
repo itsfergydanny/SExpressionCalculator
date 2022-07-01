@@ -26,3 +26,7 @@ java -jar ./target/SExpressionCalculator-1.0-SNAPSHOT-shaded.jar "<expression>"
 java -jar ./target/SExpressionCalculator-1.0-SNAPSHOT-shaded.jar "(add 12 12)"
 ```
 
+<br>
+
+Extra credit:
+* Implemented a subtract and exponent function types since it was easy to extend my base code to cover these.

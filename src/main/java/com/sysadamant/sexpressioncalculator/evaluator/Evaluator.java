@@ -1,9 +1,6 @@
 package com.sysadamant.sexpressioncalculator.evaluator;
 
-import com.sysadamant.sexpressioncalculator.functions.AddFunction;
-import com.sysadamant.sexpressioncalculator.functions.Function;
-import com.sysadamant.sexpressioncalculator.functions.FunctionType;
-import com.sysadamant.sexpressioncalculator.functions.MultiplyFunction;
+import com.sysadamant.sexpressioncalculator.functions.*;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -14,12 +11,14 @@ public class Evaluator {
     private String[] args;
 
     @Getter
-    private final Map<FunctionType, Function> FUNCTIONS = new HashMap<>();
+    private final Map<String, Function> FUNCTIONS = new HashMap<>();
 
     public Evaluator(String[] args) {
         this.args = args;
-        FUNCTIONS.put(FunctionType.ADD, new AddFunction());
-        FUNCTIONS.put(FunctionType.MULTIPLY, new MultiplyFunction());
+        FUNCTIONS.put("add", new AddFunction());
+        FUNCTIONS.put("multiply", new MultiplyFunction());
+        FUNCTIONS.put("subtract", new SubtractFunction());
+        FUNCTIONS.put("exponent", new ExponentFunction());
     }
 
     public String eval() {
@@ -27,7 +26,7 @@ public class Evaluator {
             return "Error: No arguments passed. The minimum amount of arguments to pass is 1.";
         }
 
-        String line = args[0];
+        String line = args[0].toLowerCase();
         args = line.split("\\s+");
 
         if (args.length == 1) {
@@ -46,16 +45,15 @@ public class Evaluator {
         if (!line.contains("(")) {
             String[] argz = line.split("\\s+");
             if (argz.length == 3) {
-                if (argz[0].equalsIgnoreCase("multiply")) {
-                    Optional<Integer> result = FUNCTIONS.get(FunctionType.MULTIPLY).evaluate(argz);
-                    if (result.isPresent()) {
-                        return result.get() + "";
-                    }
-                } else if (argz[0].equalsIgnoreCase("add")) {
-                    Optional<Integer> result = FUNCTIONS.get(FunctionType.ADD).evaluate(argz);
-                    if (result.isPresent()) {
-                        return result.get() + "";
-                    }
+                Optional<Integer> result = switch (argz[0]) {
+                    case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
+                    case "add" -> FUNCTIONS.get("add").evaluate(argz);
+                    case "subtract" -> FUNCTIONS.get("subtract").evaluate(argz);
+                    case "exponent" -> FUNCTIONS.get("exponent").evaluate(argz);
+                    default -> Optional.empty();
+                };
+                if (result.isPresent()) {
+                    return result.get() + "";
                 }
             }
             return "Error: Invalid operation";
@@ -66,21 +64,18 @@ public class Evaluator {
             if (c.equals("(")) {
                 String substring = line.substring(i);
                 String[] argz = substring.replace("(", "").replace(")", "").split(" ");
-                if (argz[0].equalsIgnoreCase("multiply")) {
-                    Optional<Integer> result = FUNCTIONS.get(FunctionType.MULTIPLY).evaluate(argz);
-                    if (result.isEmpty()) {
-                        line = line.replace(substring, "");
-                        continue;
-                    }
-                    line = line.replace(substring, result.get() + "");
-                } else if (argz[0].equalsIgnoreCase("add")) {
-                    Optional<Integer> result = FUNCTIONS.get(FunctionType.ADD).evaluate(argz);
-                    if (result.isEmpty()) {
-                        line = line.replace(substring, "");
-                        continue;
-                    }
-                    line = line.replace(substring, result.get() + "");
+                Optional<Integer> result = switch (argz[0]) {
+                    case "multiply" -> FUNCTIONS.get("multiply").evaluate(argz);
+                    case "add" -> FUNCTIONS.get("add").evaluate(argz);
+                    case "subtract" -> FUNCTIONS.get("subtract").evaluate(argz);
+                    case "exponent" -> FUNCTIONS.get("exponent").evaluate(argz);
+                    default -> Optional.empty();
+                };
+                if (result.isEmpty()) {
+                    line = line.replace(substring, "");
+                    continue;
                 }
+                line = line.replace(substring, result.get() + "");
             }
         }
 
