@@ -20,9 +20,8 @@ mvn package
 <br>  
 
 ## How to execute
-Once compiled, you can run the jar as follows.
+Once compiled, you can run the jar as follows:
 ```shell
-# Where <expression> is an S-expression such as (add 12 12)
 java -jar ./target/SExpressionCalculator-1.0-SNAPSHOT-shaded.jar "<expression>"
 
 # For example
